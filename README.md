@@ -2,26 +2,10 @@
 
 A simple full-stack demo app that predicts diseases based on symptoms using the **K-Nearest Neighbors (KNN)** algorithm.
 
----
-
-## 📂 Folder Structure
-app/  
-├── backend/        # FastAPI backend (runs on port 8080)  
-│   ├── app/  
-│   │   ├── api/  
-│   │   ├── data/  
-│   │   └── main.py  
-│   └── requirements.txt  
-│  
-├── frontend/       # React frontend (Vite + Tailwind + Recharts)  
-│   ├── src/  
-│   ├── package.json  
-│   └── ...  
-└── README.md  
 
 ---
 
-## ⚙️ Backend Setup (FastAPI)
+## Backend Setup (FastAPI)
 
 ### 1️⃣ Create and Activate Virtual Environment
 cd app/backend  
@@ -48,7 +32,7 @@ API docs: http://localhost:8080/docs
 
 ---
 
-## 💻 Frontend Setup (React + Tailwind + Recharts)
+## Frontend Setup (React + Tailwind + Recharts)
 
 ### 1️⃣ Install Dependencies
 cd app/frontend  
@@ -64,7 +48,7 @@ VITE_API_BASE=http://localhost:8080
 
 ---
 
-## 🧩 API Endpoints
+## API Endpoints
 
 | Method | Endpoint | Description |
 |--------|-----------|-------------|
@@ -92,17 +76,17 @@ Response:
 
 ---
 
-## 💾 Dataset Source
+## Dataset Source
 
 All CSV files (`dataset.csv`, `description.csv`, `precaution.csv`, `symptom-severity.csv`) used in this project are from the Kaggle dataset:  
-👉 **[Disease Symptom Description Dataset – Kaggle](https://www.kaggle.com/datasets/itachi9604/disease-symptom-description-dataset?resource=download&select=symptom_precaution.csv)**  
+ **[Disease Symptom Description Dataset – Kaggle](https://www.kaggle.com/datasets/itachi9604/disease-symptom-description-dataset?resource=download&select=symptom_precaution.csv)**  
 
 Ensure these files are located in:  
 `app/backend/data/`
 
 ---
 
-## 🧾 Notes
+##  Notes
 - Backend runs on **http://localhost:8080**  
 - Frontend runs on **http://localhost:5173**  
 - CORS is open for local development.  
