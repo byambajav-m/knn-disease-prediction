@@ -33,6 +33,39 @@ const API = import.meta.env.VITE_API_BASE || "http://localhost:8080";
 const METRICS: Metric[] = ["hamming", "jaccard", "cosine", "euclidean"];
 const eps = 1e-9;
 
+// ---- NEW: data for the cheat sheet table ----
+const METRIC_GUIDE: Array<{
+  type: string;
+  distance: string;
+  bestFor: string;
+  value: Metric;
+}> = [
+  {
+    type: "KNN (Euclidean)",
+    distance: "Straight-line distance",
+    bestFor: "Continuous numeric data",
+    value: "euclidean",
+  },
+  {
+    type: "KNN (Hamming)",
+    distance: "Count of mismatched bits",
+    bestFor: "Binary/categorical data",
+    value: "hamming",
+  },
+  {
+    type: "KNN (Jaccard)",
+    distance: "Overlap between sets",
+    bestFor: "Sparse features like symptoms",
+    value: "jaccard",
+  },
+  {
+    type: "KNN (Cosine)",
+    distance: "Angle similarity",
+    bestFor: "High-dimensional, normalized vectors (embeddings, text, etc.)",
+    value: "cosine",
+  },
+];
+
 export default function App() {
   const [allSymptoms, setAllSymptoms] = useState<string[]>([]);
   const [selected, setSelected] = useState<string[]>([]);
@@ -112,10 +145,8 @@ export default function App() {
       </header>
 
       <main className="max-w-6xl mx-auto p-4 md:p-8 grid gap-6 md:grid-cols-[1.1fr,1fr]">
-
-
         {/* Controls */}
-          <section className="rounded-2xl border border-zinc-200 bg-white shadow-lg">
+        <section className="rounded-2xl border border-zinc-200 bg-white shadow-lg">
           <div className="p-5 border-b border-zinc-200">
             <h2 className="text-lg font-semibold">Controls</h2>
             <p className="text-sm text-zinc-500 mt-1">
@@ -254,7 +285,6 @@ export default function App() {
           </div>
         </section>
 
-
         {/* Results */}
         <section className="rounded-2xl border border-zinc-200 bg-white shadow-lg">
           <div className="p-5 border-b border-zinc-200 flex items-center justify-between">
@@ -288,6 +318,42 @@ export default function App() {
             )}
           </div>
         </section>
+
+        {/* ---- NEW: KNN Metric Cheat Sheet ---- */}
+        <section className="md:col-span-2 rounded-2xl border border-zinc-200 bg-white shadow-lg">
+          <div className="p-5 border-b border-zinc-200 flex items-center justify-between">
+            <h2 className="text-lg font-semibold">KNN Metric Cheat Sheet</h2>
+            <p className="text-xs text-zinc-500">
+              Quick guide to pick the right distance metric.
+            </p>
+          </div>
+          <div className="p-5 overflow-auto">
+            <table className="min-w-full text-sm">
+              <thead className="bg-zinc-50">
+                <tr>
+                  <th className="text-left px-3 py-2">KNN Type</th>
+                  <th className="text-left px-3 py-2">Distance Metric Used</th>
+                  <th className="text-left px-3 py-2">Works Best For</th>
+                </tr>
+              </thead>
+              <tbody>
+                {METRIC_GUIDE.map((row) => (
+                  <tr key={row.type} className="border-t border-zinc-200">
+                    <td className="px-3 py-2">{row.type}</td>
+                    <td className="px-3 py-2">{row.distance}</td>
+                    <td className="px-3 py-2">{row.bestFor}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <p className="text-xs text-zinc-500 mt-3">
+              Tip: For symptom checklists (sparse binary features),{" "}
+              <span className="font-medium">jaccard</span> or{" "}
+              <span className="font-medium">hamming</span> are usually more
+              meaningful than euclidean.
+            </p>
+          </div>
+        </section>
       </main>
     </div>
   );
@@ -312,9 +378,15 @@ function ResultPanel({ title, data }: { title: string; data: PredictResponse }) 
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-3 flex-wrap">
-        <span className="px-2 py-1 rounded bg-indigo-100 text-indigo-800 text-xs">{title}</span>
-        <span className="px-2 py-1 rounded bg-zinc-100 text-zinc-800 text-xs">k={data.k}</span>
-        <span className="px-2 py-1 rounded bg-zinc-100 text-zinc-800 text-xs">metric={data.metric}</span>
+        <span className="px-2 py-1 rounded bg-indigo-100 text-indigo-800 text-xs">
+          {title}
+        </span>
+        <span className="px-2 py-1 rounded bg-zinc-100 text-zinc-800 text-xs">
+          k={data.k}
+        </span>
+        <span className="px-2 py-1 rounded bg-zinc-100 text-zinc-800 text-xs">
+          metric={data.metric}
+        </span>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -324,7 +396,10 @@ function ResultPanel({ title, data }: { title: string; data: PredictResponse }) 
               <XAxis dataKey="name" stroke="#555" />
               <YAxis stroke="#555" />
               <RTooltip
-                formatter={(v: number, _n, p) => [v.toFixed(4), (p?.payload as any)?.name]}
+                formatter={(v: number, _n, p) => [
+                  v.toFixed(4),
+                  (p?.payload as any)?.name,
+                ]}
               />
               <Bar dataKey="distance" fill="#6366f1" />
             </BarChart>
@@ -334,16 +409,14 @@ function ResultPanel({ title, data }: { title: string; data: PredictResponse }) 
         <div className="h-64 rounded-xl border border-zinc-200 bg-white p-3">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
-                <Pie
-                  data={votes}
-                  dataKey="weight"
-                  nameKey="label"
-                  labelLine={false}
-                >
-                  {votes.map((_, i) => (
-                    <Cell key={i} fill={["#6366f1", "#a855f7", "#f59e0b", "#ef4444"][i % 4]} />
-                  ))}
-                </Pie>
+              <Pie data={votes} dataKey="weight" nameKey="label" labelLine={false}>
+                {votes.map((_, i) => (
+                  <Cell
+                    key={i}
+                    fill={["#6366f1", "#a855f7", "#f59e0b", "#ef4444"][i % 4]}
+                  />
+                ))}
+              </Pie>
               <RTooltip
                 formatter={(v: number, name: string) => [
                   `${(v as number).toFixed(4)} (wt)`,

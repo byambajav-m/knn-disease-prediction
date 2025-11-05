@@ -14,6 +14,8 @@ def vectorize(symptoms: List[str]) -> Tuple[np.ndarray, List[str], List[str]]:
     if not used:
         raise ValueError("None of the provided symptoms are recognized.")
     vx = mlb.transform([used]).astype(np.float32)
+    print(vx, used, ignored)
+
     return vx, used, ignored
 
 def nearest_neighbors(vx: np.ndarray, k: int, metric: str):
@@ -34,13 +36,6 @@ def nearest_neighbors(vx: np.ndarray, k: int, metric: str):
     return distances[0], indices[0]
 
 def collapse_by_label(indices: np.ndarray, distances: np.ndarray):
-    """
-    Collapse multiple hits from the same disease label into one:
-    - distance: min distance among its hits
-    - count: how many hits collapsed
-    - agg_weight: sum of 1/(d+EPS) across hits (for voting)
-    Returns lists aligned by label order sorted by increasing min distance.
-    """
     best_dist: Dict[str, float] = {}
     count: Dict[str, int] = {}
     agg_weight: Dict[str, float] = {}
@@ -52,7 +47,6 @@ def collapse_by_label(indices: np.ndarray, distances: np.ndarray):
         count[label] = count.get(label, 0) + 1
         agg_weight[label] = agg_weight.get(label, 0.0) + 1.0 / float(d + EPS)
 
-    # Sort by closest (min) distance
     ordered = sorted(best_dist.items(), key=lambda kv: kv[1])
     labels = [lab for lab, _ in ordered]
     dists = [best_dist[lab] for lab in labels]
@@ -61,5 +55,4 @@ def collapse_by_label(indices: np.ndarray, distances: np.ndarray):
     return labels, dists, counts, weights
 
 def distance_weighted_vote_from_weights(labels: List[str], weights: List[float]) -> str:
-    # labels/weights already aggregated per disease
     return max(zip(labels, weights), key=lambda t: t[1])[0]
